@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
 import {tuiNumberFormatProvider} from '@taiga-ui/core';
+import {of} from "rxjs";
 
 @Component({
     selector: 'tui-money-example-5',
@@ -9,11 +10,11 @@ import {tuiNumberFormatProvider} from '@taiga-ui/core';
     encapsulation,
     changeDetection,
     providers: [
-        tuiNumberFormatProvider({
+        tuiNumberFormatProvider(of({
             decimalSeparator: '.',
             thousandSeparator: ',',
             zeroPadding: true,
-        }),
+        })),
     ],
 })
 export class TuiMoneyExample5 {}

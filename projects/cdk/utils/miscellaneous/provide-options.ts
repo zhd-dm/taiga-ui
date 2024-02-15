@@ -14,3 +14,18 @@ export function tuiProvideOptions<T>(
         }),
     };
 }
+
+export function tuiProvideObservaleOptions<T>(
+    provide: InjectionToken<T>,
+    options: Partial<T>,
+    fallback: T,
+): FactoryProvider {
+    return {
+        provide,
+        deps: [[new Optional(), new SkipSelf(), provide]],
+        useFactory: (parent: T | null): T => ({
+            ...(parent || fallback),
+            ...options,
+        }),
+    };
+}

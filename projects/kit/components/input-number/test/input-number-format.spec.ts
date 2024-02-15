@@ -6,6 +6,7 @@ import {CHAR_NO_BREAK_SPACE} from '@taiga-ui/cdk';
 import {TuiDecimal, tuiNumberFormatProvider} from '@taiga-ui/core';
 import {TuiInputNumberComponent, TuiInputNumberModule} from '@taiga-ui/kit';
 import {TuiNativeInputPO} from '@taiga-ui/testing';
+import {of} from 'rxjs';
 
 describe('InputNumber - backward compatibility for separators', () => {
     @Component({
@@ -83,10 +84,12 @@ describe('InputNumber - backward compatibility for separators', () => {
                 ],
                 declarations: [TestComponent],
                 providers: [
-                    tuiNumberFormatProvider({
-                        decimalSeparator: '.',
-                        thousandSeparator: ',',
-                    }),
+                    tuiNumberFormatProvider(
+                        of({
+                            decimalSeparator: '.',
+                            thousandSeparator: ',',
+                        }),
+                    ),
                 ],
             });
             await TestBed.compileComponents();
