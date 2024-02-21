@@ -3,13 +3,13 @@ import {TuiCurrencyVariants} from '@taiga-ui/addon-commerce/types';
 import {tuiFormatCurrency, tuiFormatSignSymbol} from '@taiga-ui/addon-commerce/utils';
 import {CHAR_NO_BREAK_SPACE} from '@taiga-ui/cdk';
 import {
-    TUI_NUMBER_FORMAT_OBSERVABLE,
+    TUI_NUMBER_FORMAT,
     TuiDecimal,
     tuiFormatNumber,
     TuiHorizontalDirection,
     TuiNumberFormatSettings,
 } from '@taiga-ui/core';
-import {map, Observable} from 'rxjs';
+import {isObservable, map, Observable, of} from 'rxjs';
 
 import {TUI_AMOUNT_OPTIONS, TuiAmountOptions} from './amount.options';
 
@@ -22,8 +22,10 @@ const DEFAULT_DECIMAL_LIMIT = 2;
 export class TuiAmountPipe implements PipeTransform {
     constructor(
         @Inject(TUI_AMOUNT_OPTIONS) private readonly options: TuiAmountOptions,
-        @Inject(TUI_NUMBER_FORMAT_OBSERVABLE)
-        private readonly format: Observable<TuiNumberFormatSettings>,
+        @Inject(TUI_NUMBER_FORMAT)
+        private readonly format:
+            | Observable<TuiNumberFormatSettings>
+            | TuiNumberFormatSettings,
     ) {}
 
     transform(
@@ -31,7 +33,9 @@ export class TuiAmountPipe implements PipeTransform {
         currency: TuiCurrencyVariants = this.options.currency,
         currencyAlign: TuiHorizontalDirection = this.options.currencyAlign,
     ): Observable<string> {
-        return this.format.pipe(
+        const format = isObservable(this.format) ? this.format : of(this.format);
+
+        return format.pipe(
             map(format => {
                 const sign = tuiFormatSignSymbol(value, this.options.sign);
                 const currencySymbol = tuiFormatCurrency(currency);

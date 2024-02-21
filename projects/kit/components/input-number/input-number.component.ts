@@ -1,20 +1,16 @@
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     ContentChildren,
     HostBinding,
     HostListener,
-    Inject,
+    inject,
     InjectionToken,
     Input,
-    Optional,
     QueryList,
-    Self,
     ViewChild,
 } from '@angular/core';
-import {NgControl} from '@angular/forms';
-import {maskitoInitialCalibrationPlugin, MaskitoOptions} from '@maskito/core';
+import {MaskitoOptions} from '@maskito/core';
 import {
     maskitoCaretGuard,
     maskitoNumberOptionsGenerator,
@@ -36,7 +32,6 @@ import {
 } from '@taiga-ui/cdk';
 import {
     TEXTFIELD_CONTROLLER_PROVIDER,
-    TUI_NUMBER_FORMAT,
     TUI_TEXTFIELD_SIZE,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
     TuiDecimal,
@@ -46,12 +41,14 @@ import {
     TuiPrimitiveTextfieldComponent,
     TuiSizeL,
     TuiSizeS,
-    TuiTextfieldController,
-    TuiTextfieldSizeDirective,
 } from '@taiga-ui/core';
 import {PolymorpheusOutletDirective} from '@tinkoff/ng-polymorpheus';
 
-import {TUI_INPUT_NUMBER_OPTIONS, TuiInputNumberOptions} from './input-number.options';
+import {TUI_INPUT_NUMBER_OPTIONS} from './input-number.options';
+import {
+    TUI_NUMBER_FORMAT_PROVIDER,
+    TUI_NUMBER_FORMAT_SUBJ,
+} from './number-format.provider';
 
 const DEFAULT_MAX_LENGTH = 18;
 
@@ -68,6 +65,7 @@ export const TUI_NUMBER_VALUE_TRANSFORMER = new InjectionToken<
         tuiAsFocusableItemAccessor(TuiInputNumberComponent),
         tuiAsControl(TuiInputNumberComponent),
         TEXTFIELD_CONTROLLER_PROVIDER,
+        TUI_NUMBER_FORMAT_PROVIDER,
     ],
 })
 export class TuiInputNumberComponent
@@ -77,7 +75,20 @@ export class TuiInputNumberComponent
     @ViewChild(TuiPrimitiveTextfieldComponent)
     private readonly textfield?: TuiPrimitiveTextfieldComponent;
 
+    private readonly isIOS = inject(TUI_IS_IOS);
+    private readonly textfieldSize = inject(TUI_TEXTFIELD_SIZE);
+
     private unfinishedValue: string | null = '';
+
+    protected override readonly valueTransformer = inject<
+        AbstractTuiValueTransformer<number | null>
+    >(TUI_NUMBER_VALUE_TRANSFORMER, {optional: true});
+
+    protected readonly options = inject(TUI_INPUT_NUMBER_OPTIONS);
+
+    get numberFormat(): TuiNumberFormatSettings {
+        return this.numberFormat$.value;
+    }
 
     @Input()
     min: number | null = this.options.min;
@@ -97,26 +108,8 @@ export class TuiInputNumberComponent
     @ContentChildren(PolymorpheusOutletDirective, {descendants: true})
     readonly polymorpheusValueContent: QueryList<unknown> = EMPTY_QUERY;
 
-    constructor(
-        @Optional()
-        @Self()
-        @Inject(NgControl)
-        control: NgControl | null,
-        @Inject(ChangeDetectorRef)
-        cdr: ChangeDetectorRef,
-        @Optional()
-        @Inject(TUI_NUMBER_VALUE_TRANSFORMER)
-        transformer: AbstractTuiValueTransformer<number | null>,
-        @Inject(TUI_INPUT_NUMBER_OPTIONS) readonly options: TuiInputNumberOptions,
-        @Inject(TUI_NUMBER_FORMAT) private readonly numberFormat: TuiNumberFormatSettings,
-        @Inject(TUI_IS_IOS) private readonly isIOS: boolean,
-        @Inject(TUI_TEXTFIELD_SIZE)
-        private readonly textfieldSize: TuiTextfieldSizeDirective,
-        @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
-        readonly controller: TuiTextfieldController,
-    ) {
-        super(control, cdr, transformer);
-    }
+    readonly controller = inject(TUI_TEXTFIELD_WATCHED_CONTROLLER);
+    readonly numberFormat$ = inject(TUI_NUMBER_FORMAT_SUBJ);
 
     @HostBinding('attr.data-size')
     get size(): TuiSizeL | TuiSizeS {
@@ -361,19 +354,11 @@ export class TuiInputNumberComponent
             decimalZeroPadding: decimalMode === 'always',
         };
         const {plugins, ...options} = maskitoNumberOptionsGenerator(generatorParams);
-        const initialCalibrationPlugin = maskitoInitialCalibrationPlugin(
-            maskitoNumberOptionsGenerator({
-                ...generatorParams,
-                min: Number.MIN_SAFE_INTEGER,
-                max: Number.MAX_SAFE_INTEGER,
-            }),
-        );
 
         return {
             ...options,
             plugins: [
                 ...plugins,
-                initialCalibrationPlugin,
                 maskitoCaretGuard(value => [
                     prefix.length,
                     value.length - postfix.length,

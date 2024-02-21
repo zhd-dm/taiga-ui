@@ -17,6 +17,12 @@ export class TuiFormatNumberPipe implements PipeTransform {
      * @param settings See {@link TuiNumberFormatSettings}
      */
     transform(value: number, settings: Partial<TuiNumberFormatSettings> = {}): string {
-        return tuiFormatNumber(value, {...this.numberFormat, ...settings});
+        return tuiFormatNumber(value, {
+            ...this.numberFormat,
+            decimalLimit: Number.isNaN(this.numberFormat.decimalLimit)
+                ? Infinity
+                : this.numberFormat.decimalLimit,
+            ...settings,
+        });
     }
 }
