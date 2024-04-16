@@ -28,12 +28,12 @@
         </tui-notification>
 
         <tui-doc-example
-            id="base"
-            heading="Basic"
-            [content]="example1"
-        >
-            <tui-confirm-example-1 />
-        </tui-doc-example>
+            *ngFor="let example of examples; let index = index"
+            [component]="index + 1 | tuiComponent"
+            [content]="index + 1 | tuiExample: 'html,ts'"
+            [heading]="example"
+            [id]="example | tuiKebab"
+        />
     </ng-template>
 
     <ng-template pageTab>
@@ -88,19 +88,6 @@
             </ng-template>
         </tui-doc-documentation>
     </ng-template>
-    <ng-template pageTab>
-        <ol class="b-demo-steps">
-            <li>
-                <p>
-                    Open with
-                    <code>DialogService</code>
-                </p>
 
-                <tui-doc-code
-                    filename="my.component.ts"
-                    [code]="exampleService"
-                />
-            </li>
-        </ol>
-    </ng-template>
+    <tui-setup *pageTab />
 </tui-doc-page>

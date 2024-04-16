@@ -953,15 +953,11 @@ export const ROUTES: Routes = [
         title: 'ProgressSegmented',
         loadComponent: async () => import('../directives/progress-segmented'),
     }),
-    {
+    route({
         path: DemoRoute.Confirm,
-        loadChildren: async () =>
-            (await import('../components/confirm/confirm.module'))
-                .ExampleTuiConfirmModule,
-        data: {
-            title: 'Confirm',
-        },
-    },
+        title: 'Confirm',
+        loadComponent: async () => import('../components/confirm'),
+    }),
     {
         path: DemoRoute.Tiles,
         loadChildren: async () =>
