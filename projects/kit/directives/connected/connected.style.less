@@ -1,0 +1,40 @@
+@import '@taiga-ui/core/styles/taiga-ui-local';
+
+[tuiConnected] {
+    --tui-icon-height: 2rem;
+    --tui-icon-width: 2rem;
+    --tui-left-offset: 1rem;
+    --tui-vertical-offset: calc((100% + var(--tui-icon-height)) / 2 + 4px);
+    --tui-connected-height: calc(100% - var(--tui-vertical-offset));
+
+    &[tuiCardLarge] [tuiCell],
+    [tuiCell],
+    [tuiStep] {
+        &:not(:first-of-type):before,
+        &:not(:last-of-type):after {
+            content: '';
+            position: absolute;
+            bottom: var(--tui-vertical-offset);
+            left: calc(var(--tui-icon-width) / 2 + var(--tui-left-offset));
+            height: var(--tui-connected-height);
+            width: 1px;
+            background-color: var(--tui-border-normal);
+        }
+
+        &:not(:last-of-type):after {
+            top: var(--tui-vertical-offset);
+        }
+    }
+
+    &[tuiCardLarge] [tuiCell] {
+        --tui-left-offset: 0.5rem;
+        --tui-icon-height: 2.5rem;
+        --tui-icon-width: 2.5rem;
+    }
+
+    [tuiStep] {
+        --tui-left-offset: 0rem;
+        --tui-vertical-margin: 1.25rem;
+        --tui-connected-height: calc(100% - var(--tui-vertical-offset) + var(--tui-vertical-margin) / 2);
+    }
+}
